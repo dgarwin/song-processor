@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="detectCount.js"></script>
+    <script src="setupLogger.js"></script>
+    <script src="setupSpotify.js"></script>
+
+</head>
+
+<body>
+    <script>
+        function init() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://sdk.scdn.co/spotify-player.js";
+            $("head").append(script);
+            window.onSpotifyWebPlaybackSDKReady = async () => {
+                window.player = setupSpotify($("input")[0].value);
+                window.keyPresses = { 'KeyB': [], 'Digit1': [], 'Space': [] };
+            }
+        }
+        function clear() {
+            window.keyPresses = { 'KeyB': [], 'Digit1': [], 'Space': [] };
+        }
+        $(document).keypress((e) => {
+            window.player.getCurrentState().then(state => {
+                let time = state.position / 1000;
+                logKeypress(window.keyPresses, e, time)
+                if (e.code === 'Space') {
+                    let count = findCount(window.keyPresses, time);
+                    if (count < 8)
+                        alert(count);
+                    else
+                        alert('Mark a 1 count closer to the item of interest')
+                }
+            });
+        });
+    </script>
+    <h1>Count Finder</h1>
+    <div id="init">
+        <label>Token:</label>
+        <input type="text" />
+        <button onclick={init()}>Initialize</button>
+        <button onclick={clear()}>Clear</button>
+    </div>
+</body>
+
+</html>
